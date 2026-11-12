@@ -618,6 +618,30 @@ main {
 }
 .status-pulsing { animation: badge-pulse 2s ease infinite; }
 
+/* A status chip that IS the control — the workflow's Enabled/Disabled switch.
+   It must read as clickable without turning into a button: same chip, a
+   brighter rim on hover, a ring when reached by keyboard, and a press that
+   matches the other tappable chips. `appearance: none` keeps a UA button skin
+   from leaking through. */
+.status-badge--action {
+  appearance: none;
+  cursor: pointer;
+}
+.status-badge--action:hover:not(:disabled) {
+  border-color: var(--chip-ink);
+  filter: brightness(1.12);
+}
+.status-badge--action:active:not(:disabled) { transform: scale(0.96); }
+.status-badge--action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* In flight: dimmed and unclickable, with a spinner in place of the icon. */
+.status-badge--action:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 .icon-spin { animation: spin 1s linear infinite; display: inline-block; }
 

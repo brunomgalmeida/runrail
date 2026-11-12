@@ -109,15 +109,37 @@ const STATUS_MAP: Record<string, {
   crash_loop:   { cls: 'status-danger',  icon: XCircle,       label: 'Crash loop' },
 };
 
-export function StatusBadge({ value }: { value: string }) {
+export function StatusBadge({
+  value, onClick, busy, title,
+}: {
+  value: string;
+  /** Turns the chip into a control: it renders a real button that runs this.
+   *  Everything else on the page keeps the plain <span>, so no run or service
+   *  badge becomes clickable by accident. */
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  /** Blocks a second click and swaps the icon for a spinner while in flight. */
+  busy?: boolean;
+  title?: string;
+}) {
   const cfg = STATUS_MAP[value] ?? { cls: 'status-muted', icon: CircleDot, label: value };
-  const Icon = cfg.icon;
-  return (
-    // Keyed on value: a status change remounts the chip so badge-land replays.
-    <span key={value} className={clsx('status-badge', cfg.cls, value === 'running' && 'status-pulsing')}>
-      <Icon size={11} strokeWidth={2.5} className={value === 'running' ? 'icon-spin' : ''} />
+  const Icon = busy ? Loader2 : cfg.icon;
+  const spinning = busy || value === 'running';
+  // Keyed on value: a status change remounts the chip so badge-land replays.
+  const className = clsx('status-badge', cfg.cls, value === 'running' && 'status-pulsing', onClick && 'status-badge--action');
+  const content = (
+    <>
+      <Icon size={11} strokeWidth={2.5} className={spinning ? 'icon-spin' : ''} />
       {cfg.label}
-    </span>
+    </>
+  );
+  if (!onClick) {
+    return <span key={value} className={className}>{content}</span>;
+  }
+  return (
+    <button key={value} type="button" className={className} onClick={onClick}
+            disabled={busy} aria-busy={busy || undefined} aria-pressed={value === 'enabled'} title={title}>
+      {content}
+    </button>
   );
 }
 

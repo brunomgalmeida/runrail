@@ -25,6 +25,7 @@ import { useToast } from './components/toast';
 import { ApprovalGate, ApprovalInbox, useOpenApprovals } from './components/ApprovalGate';
 import { ResumeButton } from './components/ResumeDialog';
 import { SnoozeBadge, SnoozeControl } from './components/SnoozeControl';
+import { WorkflowStatusToggle } from './components/WorkflowStatus';
 import { WatchdogFields, watchdogValues } from './components/WatchdogFields';
 import { NotificationBell } from './components/NotificationCenter';
 import { ScheduleGapsPanel, useScheduleGaps, heatmapGapFeed } from './components/ScheduleGaps';
@@ -2359,7 +2360,10 @@ function Workflows() {
                   {/* Renders nothing for the unlocked majority, so the row is
                       unchanged for them. */}
                   <LockBadge resource={w.lock_resource} mode={w.lock_mode} />
-                  <StatusBadge value={w.enabled ? 'enabled' : 'disabled'} />
+                  {/* The chip is the pause switch too — it stops its own click
+                      so flipping it never opens the workflow. */}
+                  <WorkflowStatusToggle workflow={w}
+                                       onChange={u => setItems(list => list.map(x => x.id === u.id ? u : x))} />
                 </div>
               </div>
               {/* A row of its own: squeezed in beside the icon and the other
@@ -2709,7 +2713,7 @@ function WorkflowDetail() {
       </div>
 
       <div className="summary-strip">
-        <div><span>Status</span><StatusBadge value={w.enabled ? 'enabled' : 'disabled'} /></div>
+        <div><span>Status</span><WorkflowStatusToggle workflow={w} onChange={setW} /></div>
         {w.snooze_until && (
           <div><span>Alerts</span><SnoozeBadge workflow={w} onChange={setW} onExpire={load} /></div>
         )}
